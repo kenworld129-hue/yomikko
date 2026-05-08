@@ -1,0 +1,63 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode - User-specific
+xcuserdata/
+*.xcuserstate
+*.xcuserstatedata
+*.moved-aside
+
+# Xcode - Build products
+build/
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Xcode - Other
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+*.xccheckout
+*.xcscmblueprint
+
+# Swift Package Manager
+# Package.resolved はアプリ（実行可能）リポジトリではコミット推奨のため除外しない
+.build/
+.swiftpm/
+Packages/
+Package.pins
+
+# CocoaPods（本プロジェクトでは未使用だが念のため）
+Pods/
+
+# Carthage（同上）
+Carthage/Build/
+Carthage/Checkouts
+
+# fastlane（同上）
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# IDE / Editor
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Raw assets（編集前素材・GitHub公開不要）
+raw_assets/                               
+
+# Logs / temp
+*.log
+*.tmp
