@@ -5,14 +5,14 @@
 //  Created by kenshun on 2026/04/21.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct yomikkoApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            Word.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -22,6 +22,14 @@ struct yomikkoApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+
+    init() {
+        do {
+            try PresetSeeder.seedIfNeeded(context: sharedModelContainer.mainContext)
+        } catch {
+            fatalError("Failed to seed preset words: \(error)")
+        }
+    }
 
     var body: some Scene {
         WindowGroup {

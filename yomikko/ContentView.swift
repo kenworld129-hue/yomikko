@@ -10,27 +10,27 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Query private var words: [Word]
 
     var body: some View {
         NavigationSplitView {
             List {
-                ForEach(items) { item in
+                ForEach(words) { word in
                     NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
+                        Text("Word at \(word.reading)")
                     } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+                        Text(word.reading)
                     }
                 }
-                .onDelete(perform: deleteItems)
+                .onDelete(perform: deleteWords)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
                 }
                 ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                    Button(action: addWord) {
+                        Label("Add Word", systemImage: "plus")
                     }
                 }
             }
@@ -39,17 +39,17 @@ struct ContentView: View {
         }
     }
 
-    private func addItem() {
+    private func addWord() {
         withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+            let newWord = Word(reading:"ひらがな", imagePath: nil, isCustom: true)
+            modelContext.insert(newWord)
         }
     }
 
-    private func deleteItems(offsets: IndexSet) {
+    private func deleteWords(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
-                modelContext.delete(items[index])
+                modelContext.delete(words[index])
             }
         }
     }
@@ -57,5 +57,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: Word.self, inMemory: true)
 }
