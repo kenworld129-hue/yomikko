@@ -2,7 +2,7 @@
 
 > 3歳児のためのひらがな読み練習 iOS アプリ
 
-![Status](https://img.shields.io/badge/status-WIP_Phase_2-yellow)
+![Status](https://img.shields.io/badge/status-WIP_Phase_3-yellow)
 ![Platform](https://img.shields.io/badge/iOS-17%2B-blue)
 ![Xcode](https://img.shields.io/badge/Xcode-26.3-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -43,13 +43,14 @@
 - **書き機能を持たない**：機能スコープを絞ることでリリース距離を短縮。同時に「書きはアナログで」という育児上の理念を表明する役割も持たせている。
 - **写真はローカル保存のみ**：プライバシー配慮とサーバー実装コスト回避を兼ねる。これにより GDPR 等のデータ越境問題からも切り離せる。
 - **`@Observable` を採用**（`ObservableObject` ではなく）：iOS 17 のマクロベースの新方式。再描画粒度が細かくパフォーマンス的にも有利。
+- **画面遷移は自前ルーティングで実装**（`NavigationStack` / `fullScreenCover` ではなく）：`@Observable` な `AppRouter` をアプリ全体で1つ Environment 注入し、ルート View が `switch` で表示画面を選択する方式。3歳児向け＋有料アプリとして UI を独自に作り込む方針上、画面切替トランジション演出まで自前で設計できる余地を確保する必要があったため、標準ナビゲーション API を意図的に外した。起動時免責モーダルのような「装飾不要・機械的トーンが意図と合致する」表示には標準 `.fullScreenCover` を併用し、責務に応じて標準 / 自前を使い分けている。
 
 ## 開発フェーズ進捗
 
 - ✅ **Phase 0：事前準備** — Apple Developer Program 登録、プライバシーポリシー公開、App Store Connect アプリ枠作成
-- 🔶 **Phase 2：開発環境・基盤**（進行中）— Xcode プロジェクト作成、ビルド・シミュレータ起動確認、GitHub 公開
-- ⬜ Phase 1：素材調達（プリセット20語イラスト・効果音・アプリアイコン）
-- ⬜ Phase 3：コア機能開発（ホーム / 単語登録 / 問題画面 / 結果画面）
+- ✅ **Phase 1：素材調達** — プリセット20語イラスト（Loose Drawing 一本化）、効果音（効果音ラボ）、アプリアイコン（Canva 内製）、ライセンス一覧（ASSET_LICENSES.md）整備
+- ✅ **Phase 2：開発環境・基盤** — Xcode プロジェクト作成、ビルド・SwiftData 動作検証、GitHub Public 公開、Word モデル実装、プリセット20語の初期投入処理
+- 🔶 **Phase 3：コア機能開発**（進行中）— 3-1 完了（ホーム画面と画面切替メカニズム）、3-2 以降は単語登録 / 問題画面 / 結果画面を順次実装
 - ⬜ Phase 4：UI 品質・3歳児向け細部調整
 - ⬜ Phase 5：TestFlight ベータテスト
 - ⬜ Phase 6：App Store 申請
@@ -98,9 +99,12 @@ Xcode で `yomikko` スキームを選択し、シミュレータまたは実機
 ```
 yomikko/
 ├── yomikko/                # アプリソースコード
-│   ├── yomikkoApp.swift    # @main エントリポイント
-│   ├── ContentView.swift   # ルートビュー
-│   ├── Item.swift          # SwiftData モデル
+│   ├── yomikkoApp.swift    # @main エントリポイント（ModelContainer 初期化・AppRouter 注入）
+│   ├── RootView.swift      # ルート View（画面切替の司令塔、switch + .fullScreenCover）
+│   ├── HomeView.swift      # ホーム画面（「はじめる」「登録」ボタン）
+│   ├── AppRouter.swift     # @Observable な画面切替・モーダル表示制御クラス（enum Screen 同居）
+│   ├── Word.swift          # SwiftData モデル（単語データ）
+│   ├── PresetSeeder.swift  # プリセット20語の初期投入処理
 │   └── Assets.xcassets/    # 画像リソース
 ├── yomikkoTests/           # 単体テスト（Swift Testing）
 ├── yomikkoUITests/         # UI テスト
