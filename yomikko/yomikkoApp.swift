@@ -23,6 +23,8 @@ struct yomikkoApp: App {
         }
     }()
 
+    @State private var router = AppRouter()
+
     init() {
         do {
             try PresetSeeder.seedIfNeeded(context: sharedModelContainer.mainContext)
@@ -33,7 +35,8 @@ struct yomikkoApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environment(router)
         }
         .modelContainer(sharedModelContainer)
     }
