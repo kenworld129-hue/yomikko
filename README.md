@@ -98,18 +98,23 @@ Xcode で `yomikko` スキームを選択し、シミュレータまたは実機
 
 ```
 yomikko/
-├── yomikko/                # アプリソースコード
-│   ├── yomikkoApp.swift    # @main エントリポイント（ModelContainer 初期化・AppRouter 注入）
-│   ├── RootView.swift      # ルート View（画面切替の司令塔、switch + .fullScreenCover）
-│   ├── HomeView.swift      # ホーム画面（「はじめる」「登録」ボタン）
-│   ├── AppRouter.swift     # @Observable な画面切替・モーダル表示制御クラス（enum Screen 同居）
-│   ├── Word.swift          # SwiftData モデル（単語データ）
-│   ├── PresetSeeder.swift  # プリセット20語の初期投入処理
-│   └── Assets.xcassets/    # 画像リソース
-├── yomikkoTests/           # 単体テスト（Swift Testing）
-├── yomikkoUITests/         # UI テスト
-├── raw_assets/             # 素材生データ（Xcode ターゲット非含有）
-└── yomikko.xcodeproj/      # Xcode プロジェクトファイル
+├── yomikko/                    # アプリソースコード
+│   ├── App/                    # アプリエントリ・ルート View
+│   │   ├── yomikkoApp.swift    # @main エントリポイント（ModelContainer 初期化・AppRouter 注入）
+│   │   └── RootView.swift      # ルート View（画面切替の司令塔、switch + .fullScreenCover）
+│   ├── Routing/                # 画面切替の状態管理
+│   │   └── AppRouter.swift     # @Observable な画面切替・モーダル表示制御クラス（enum Screen 同居）
+│   ├── Views/                  # 画面 View
+│   │   └── HomeView.swift      # ホーム画面（「はじめる」「登録」ボタン）
+│   ├── Models/                 # データモデル
+│   │   └── Word.swift          # SwiftData モデル（単語データ）
+│   ├── Services/               # ビジネスロジック・データ投入
+│   │   └── PresetSeeder.swift  # プリセット20語の初期投入処理
+│   └── Assets.xcassets/        # 画像リソース
+├── yomikkoTests/               # 単体テスト（Swift Testing）
+├── yomikkoUITests/             # UI テスト
+├── raw_assets/                 # 素材生データ（Xcode ターゲット非含有）
+└── yomikko.xcodeproj/          # Xcode プロジェクトファイル
 ```
 
 ## ライセンス
