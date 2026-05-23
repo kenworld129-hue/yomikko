@@ -42,14 +42,7 @@ struct RootView: View {
             }
         }
         .fullScreenCover(isPresented: $router.isDisclaimerPresented) {
-            VStack {
-                Text("modal view")
-                Button("OK") {
-                    withAnimation {
-                        router.isDisclaimerPresented = false
-                    }
-                }
-            }
+            DisclaimerView()
         }
     }
 }
