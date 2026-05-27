@@ -50,7 +50,7 @@
 - ✅ **Phase 0：事前準備** — Apple Developer Program 登録、プライバシーポリシー公開、App Store Connect アプリ枠作成
 - ✅ **Phase 1：素材調達** — プリセット20語イラスト（Loose Drawing 一本化）、効果音（効果音ラボ）、アプリアイコン（Canva 内製）、ライセンス一覧（ASSET_LICENSES.md）整備
 - ✅ **Phase 2：開発環境・基盤** — Xcode プロジェクト作成、ビルド・SwiftData 動作検証、GitHub Public 公開、Word モデル実装、プリセット20語の初期投入処理
-- 🔶 **Phase 3：コア機能開発**（進行中）— 3-1・3-2 完了（ホーム画面と画面切替メカニズム、起動時免責モーダル）、3-3 以降は単語登録 / 問題画面 / 結果画面を順次実装
+- 🔶 **Phase 3：コア機能開発**（進行中）— 3-1〜3-3 完了（ホーム画面と画面切替メカニズム、起動時免責モーダル、単語登録画面）、3-4 以降は写真連携 / 問題画面 / 結果画面を順次実装
 - ⬜ Phase 4：UI 品質・3歳児向け細部調整
 - ⬜ Phase 5：TestFlight ベータテスト
 - ⬜ Phase 6：App Store 申請
@@ -106,7 +106,9 @@ yomikko/
 │   │   └── AppRouter.swift     # @Observable な画面切替・モーダル表示制御クラス（enum Screen 同居）
 │   ├── Views/                  # 画面 View
 │   │   ├── HomeView.swift       # ホーム画面（「はじめる」「登録」ボタン）
-│   │   └── DisclaimerView.swift # 起動時免責モーダル（保護者向け）
+│   │   ├── DisclaimerView.swift # 起動時免責モーダル（保護者向け）
+│   │   ├── RegisterView.swift   # 単語登録画面（一覧＋一覧/フォーム出し分け）
+│   │   └── WordFormView.swift   # 単語フォーム（新規・編集兼用）
 │   ├── Models/                 # データモデル
 │   │   └── Word.swift          # SwiftData モデル（単語データ）
 │   ├── Services/               # ビジネスロジック・データ投入
