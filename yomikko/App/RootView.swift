@@ -31,12 +31,7 @@ struct RootView: View {
                 .transition(.opacity)
             case .register:
                 VStack {
-                    Text("register view")
-                    Button("go to home") {
-                        withAnimation {
-                            router.currentScreen = .home
-                        }
-                    }
+                    RegisterView()
                 }
                 .transition(.opacity)
             }
