@@ -44,7 +44,7 @@ enum PresetSeeder {
 
         for presetWord in PresetWords.all {
             let word = Word(
-                reading: presetWord.reading, imagePath: presetWord.imageAssetName, isCustom: false)
+                reading: presetWord.reading, imagePath: "asset:\(presetWord.imageAssetName)", isCustom: false)
 
             context.insert(word)
         }

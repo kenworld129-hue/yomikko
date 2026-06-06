@@ -30,6 +30,8 @@ final class Word {
     }
     enum Constants {
         static let maxLength = 10
+        static let imageMaxSize: CGFloat = 1024
+        static let imageJpegQuality: CGFloat = 0.8
     }
 
 }
