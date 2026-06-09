@@ -103,12 +103,12 @@ struct WordFormView: View {
             Image(systemName: "photo")
         case .unchanged:
             if let path = word?.imagePath {
-                if path.hasPrefix("asset:") {
-                    Image(String(path.dropFirst("asset:".count)))
+                if path.hasPrefix(Word.Constants.imageAssetPrefix) {
+                    Image(String(path.dropFirst(Word.Constants.imageAssetPrefix.count)))
                         .resizable().scaledToFit()
-                } else if path.hasPrefix("local:"),
-                    let url = documentsFileURL(forFileName: String(path.dropFirst("local:".count))),
-                    let ui = UIImage(contentsOfFile: url.path)
+                } else if path.hasPrefix(Word.Constants.imageLocalPrefix),
+                    let ui = ImageStore.loadImage(
+                        forFileName: String(path.dropFirst(Word.Constants.imageLocalPrefix.count)))
                 {
                     Image(uiImage: ui).resizable().scaledToFit()
                 } else {
@@ -119,15 +119,6 @@ struct WordFormView: View {
             }
         }
 
-    }
-
-    private func documentsFileURL(forFileName fileName: String) -> URL? {
-        guard
-            let docs = FileManager.default.urls(
-                for: .documentDirectory, in: .userDomainMask
-            ).first
-        else { return nil }
-        return docs.appendingPathComponent(fileName)
     }
 
     private func save() {
@@ -151,7 +142,7 @@ struct WordFormView: View {
         switch imageState {
         case .selected(let data):
             let fileName = UUID().uuidString + ".jpg"
-            guard let url = documentsFileURL(forFileName: fileName) else {
+            guard let url = ImageStore.documentsFileURL(forFileName: fileName) else {
                 errorMessage = "画像の保存に失敗しました"
                 return
             }
@@ -159,7 +150,7 @@ struct WordFormView: View {
                 errorMessage = "画像の保存に失敗しました"
                 return
             }
-            finalImagePath = "local:" + fileName
+            finalImagePath = Word.Constants.imageLocalPrefix + fileName
         case .removed:
             finalImagePath = nil
         case .unchanged:
@@ -182,8 +173,9 @@ struct WordFormView: View {
 
         switch imageState {
         case .selected, .removed:
-            if let old = oldImagePath, old.hasPrefix("local:"),
-                let url = documentsFileURL(forFileName: String(old.dropFirst("local:".count)))
+            if let old = oldImagePath, old.hasPrefix(Word.Constants.imageLocalPrefix),
+                let url = ImageStore.documentsFileURL(
+                    forFileName: String(old.dropFirst(Word.Constants.imageLocalPrefix.count)))
             {
                 try? FileManager.default.removeItem(at: url)
             }

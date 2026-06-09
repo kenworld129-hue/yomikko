@@ -29,7 +29,7 @@ enum PresetWords {
         (reading: "いえ", imageAssetName: "ie"),
         (reading: "きのこ", imageAssetName: "kinoko"),
         (reading: "とり", imageAssetName: "tori"),
-        (reading: "さかな", imageAssetName: "sakana")
+        (reading: "さかな", imageAssetName: "sakana"),
 
     ]
 }
@@ -44,7 +44,9 @@ enum PresetSeeder {
 
         for presetWord in PresetWords.all {
             let word = Word(
-                reading: presetWord.reading, imagePath: "asset:\(presetWord.imageAssetName)", isCustom: false)
+                reading: presetWord.reading,
+                imagePath: Word.Constants.imageAssetPrefix + presetWord.imageAssetName,
+                isCustom: false)
 
             context.insert(word)
         }

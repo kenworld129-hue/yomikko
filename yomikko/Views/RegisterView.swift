@@ -35,7 +35,12 @@ struct RegisterView: View {
                                 mode = .editing(word)
                             }
                         } label: {
-                            Text(word.reading)
+                            HStack {
+                                WordImageView(source: word.imageSource)
+                                    .frame(width: 44, height: 44)
+                                    .clipped()
+                                Text(word.reading)
+                            }
                         }
                     }
                 }

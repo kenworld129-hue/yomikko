@@ -32,6 +32,26 @@ final class Word {
         static let maxLength = 10
         static let imageMaxSize: CGFloat = 1024
         static let imageJpegQuality: CGFloat = 0.8
+        static let imageAssetPrefix = "asset:"
+        static let imageLocalPrefix = "local:"
+    }
+    enum ImageSource {
+        case asset(name: String)
+        case local(fileName: String)
+        case none
+    }
+    var imageSource: ImageSource {
+        switch imagePath {
+        case let path? where path.hasPrefix(Constants.imageAssetPrefix):
+            ImageSource.asset(name: String(path.dropFirst(Constants.imageAssetPrefix.count)))
+        case let path? where path.hasPrefix(Constants.imageLocalPrefix):
+            ImageSource.local(fileName: String(path.dropFirst(Constants.imageLocalPrefix.count)))
+        case nil:
+            ImageSource.none
+        default:
+            ImageSource.none
+
+        }
     }
 
 }
