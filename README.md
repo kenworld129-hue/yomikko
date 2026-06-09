@@ -52,7 +52,7 @@
 - ✅ **Phase 0：事前準備** — Apple Developer Program 登録、プライバシーポリシー公開、App Store Connect アプリ枠作成
 - ✅ **Phase 1：素材調達** — プリセット20語イラスト（Loose Drawing 一本化）、効果音（効果音ラボ）、アプリアイコン（Canva 内製）、ライセンス一覧（ASSET_LICENSES.md）整備
 - ✅ **Phase 2：開発環境・基盤** — Xcode プロジェクト作成、ビルド・SwiftData 動作検証、GitHub Public 公開、Word モデル実装、プリセット20語の初期投入処理
-- 🔶 **Phase 3：コア機能開発**（進行中）— 3-1〜3-4 完了（ホーム画面と画面切替メカニズム、起動時免責モーダル、単語登録画面、フォトライブラリ連携）、3-5 以降はフォールバック表示 / 問題画面 / 結果画面を順次実装
+- 🔶 **Phase 3：コア機能開発**（進行中）— 3-1〜3-5 完了（ホーム画面と画面切替メカニズム、起動時免責モーダル、単語登録画面、フォトライブラリ連携、写真なし単語のフォールバック表示・一覧サムネイル）、3-6 以降は削除制限 / 問題画面 / 結果画面を順次実装
 - ⬜ Phase 4：UI 品質・3歳児向け細部調整
 - ⬜ Phase 5：TestFlight ベータテスト
 - ⬜ Phase 6：App Store 申請
@@ -110,12 +110,14 @@ yomikko/
 │   │   ├── HomeView.swift       # ホーム画面（「はじめる」「登録」ボタン）
 │   │   ├── DisclaimerView.swift # 起動時免責モーダル（保護者向け）
 │   │   ├── RegisterView.swift   # 単語登録画面（一覧＋一覧/フォーム出し分け）
-│   │   └── WordFormView.swift   # 単語フォーム（新規・編集兼用）
+│   │   ├── WordFormView.swift   # 単語フォーム（新規・編集兼用）
+│   │   └── WordImageView.swift  # 画像表示の共通 View（ImageSource で出し分け・fallback 内蔵）
 │   ├── Models/                 # データモデル
 │   │   └── Word.swift          # SwiftData モデル（単語データ）
 │   ├── Services/               # ビジネスロジック・データ投入
-│   │   └── PresetSeeder.swift  # プリセット20語の初期投入処理
-│   └── Assets.xcassets/        # 画像リソース（アプリアイコン枠・プリセットイラスト20点）
+│   │   ├── PresetSeeder.swift  # プリセット20語の初期投入処理
+│   │   └── ImageStore.swift    # 画像ファイルの URL 解決・読み込み（Documents I/O 集約）
+│   └── Assets.xcassets/        # 画像リソース（アプリアイコン枠・プリセットイラスト20点・フォールバック1点）
 ├── yomikkoTests/               # 単体テスト（Swift Testing）
 ├── yomikkoUITests/             # UI テスト
 ├── raw_assets/                 # 素材生データ（Xcode ターゲット非含有）
