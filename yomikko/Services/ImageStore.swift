@@ -13,7 +13,9 @@ enum ImageStore {
             let docs = FileManager.default.urls(
                 for: .documentDirectory, in: .userDomainMask
             ).first
-        else { return nil }
+        else {
+            return nil
+        }
         return docs.appendingPathComponent(fileName)
     }
 
@@ -23,5 +25,12 @@ enum ImageStore {
         }
         let ui = UIImage(contentsOfFile: url.path)
         return ui
+    }
+
+    static func deleteImage(forFileName fileName: String) {
+        guard let url = documentsFileURL(forFileName: fileName) else {
+            return
+        }
+        try? FileManager.default.removeItem(at: url)
     }
 }

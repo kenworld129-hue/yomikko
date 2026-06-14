@@ -13,6 +13,7 @@ struct WordFormView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var reading: String
     @State private var errorMessage: String?
+    @State private var isShowingDeleteConfirmation: Bool = false
     @State private var selectedPickerItem: PhotosPickerItem?
     @State private var imageState: FormImageState = .unchanged
 
@@ -30,6 +31,11 @@ struct WordFormView: View {
         }
     }
 
+    var totalWordCount: Int {
+        let descriptor = FetchDescriptor<Word>()
+        return (try? modelContext.fetchCount(descriptor)) ?? 0
+    }
+
     enum FormImageState {
         case selected(Data)
         case removed
@@ -44,6 +50,7 @@ struct WordFormView: View {
     }
 
     var body: some View {
+        let isBelowMinimum = totalWordCount <= Word.Constants.minWordCount
         VStack {
             TextField("ひらがなでにゅうりょく", text: $reading)
             PhotosPicker(
@@ -89,6 +96,24 @@ struct WordFormView: View {
             Button("やめる") {
                 onComplete()
             }
+            if word != nil {
+                Button("この単語を削除", role: .destructive) {
+                    isShowingDeleteConfirmation = true
+                }
+                .disabled(isBelowMinimum)
+                if isBelowMinimum {
+                    Text("単語は\(Word.Constants.minWordCount)語以上必要なため、削除できません。")
+                }
+            }
+        }
+        .confirmationDialog(
+            "\(word?.reading ?? "")を削除しますか？", isPresented: $isShowingDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("削除", role: .destructive) {
+                delete()
+            }
+            Button("キャンセル", role: .cancel) {}
         }
     }
 
@@ -118,7 +143,6 @@ struct WordFormView: View {
                 Image(systemName: "photo")
             }
         }
-
     }
 
     private func save() {
@@ -137,6 +161,7 @@ struct WordFormView: View {
         }
 
         let oldImagePath = word?.imagePath
+        let oldImageSource = word?.imageSource
         let finalImagePath: String?
 
         switch imageState {
@@ -173,18 +198,33 @@ struct WordFormView: View {
 
         switch imageState {
         case .selected, .removed:
-            if let old = oldImagePath, old.hasPrefix(Word.Constants.imageLocalPrefix),
-                let url = ImageStore.documentsFileURL(
-                    forFileName: String(old.dropFirst(Word.Constants.imageLocalPrefix.count)))
-            {
-                try? FileManager.default.removeItem(at: url)
+            if let source = oldImageSource, case .local(let fileName) = source {
+                ImageStore.deleteImage(forFileName: fileName)
             }
         case .unchanged:
             break
         }
 
         onComplete()
+    }
 
+    private func delete() {
+        guard let word = word else {
+            return
+        }
+        let source = word.imageSource
+        modelContext.delete(word)
+        do {
+            try modelContext.save()
+        } catch {
+            errorMessage = "削除に失敗しました"
+            modelContext.rollback()
+            return
+        }
+        if case .local(let fileName) = source {
+            ImageStore.deleteImage(forFileName: fileName)
+        }
+        onComplete()
     }
 
 }
