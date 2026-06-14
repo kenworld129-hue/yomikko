@@ -52,7 +52,7 @@
 - ✅ **Phase 0：事前準備** — Apple Developer Program 登録、プライバシーポリシー公開、App Store Connect アプリ枠作成
 - ✅ **Phase 1：素材調達** — プリセット20語イラスト（Loose Drawing 一本化）、効果音（効果音ラボ）、アプリアイコン（Canva 内製）、ライセンス一覧（ASSET_LICENSES.md）整備
 - ✅ **Phase 2：開発環境・基盤** — Xcode プロジェクト作成、ビルド・SwiftData 動作検証、GitHub Public 公開、Word モデル実装、プリセット20語の初期投入処理
-- 🔶 **Phase 3：コア機能開発**（進行中）— 3-1〜3-5 完了（ホーム画面と画面切替メカニズム、起動時免責モーダル、単語登録画面、フォトライブラリ連携、写真なし単語のフォールバック表示・一覧サムネイル）、3-6 以降は削除制限 / 問題画面 / 結果画面を順次実装
+- 🔶 **Phase 3：コア機能開発**（進行中）— 3-1〜3-6 完了（ホーム画面と画面切替メカニズム、起動時免責モーダル、単語登録画面、フォトライブラリ連携、写真なし単語のフォールバック表示・一覧サムネイル、単語削除と下限20語維持）、3-7 以降は問題画面 / ゲームロジック / 結果画面を順次実装
 - ⬜ Phase 4：UI 品質・3歳児向け細部調整
 - ⬜ Phase 5：TestFlight ベータテスト
 - ⬜ Phase 6：App Store 申請
@@ -116,7 +116,7 @@ yomikko/
 │   │   └── Word.swift          # SwiftData モデル（単語データ）
 │   ├── Services/               # ビジネスロジック・データ投入
 │   │   ├── PresetSeeder.swift  # プリセット20語の初期投入処理
-│   │   └── ImageStore.swift    # 画像ファイルの URL 解決・読み込み（Documents I/O 集約）
+│   │   └── ImageStore.swift    # 画像ファイルの URL 解決・読み込み・削除（Documents I/O 集約）
 │   └── Assets.xcassets/        # 画像リソース（アプリアイコン枠・プリセットイラスト20点・フォールバック1点）
 ├── yomikkoTests/               # 単体テスト（Swift Testing）
 ├── yomikkoUITests/             # UI テスト
