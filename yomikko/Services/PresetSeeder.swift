@@ -52,4 +52,38 @@ enum PresetSeeder {
         }
         try context.save()
     }
+    static func restorePresets(context: ModelContext) throws {
+        let allWords = try context.fetch(FetchDescriptor<Word>())
+        var fileNamesToDelete: [String] = []
+
+        for presetWord in PresetWords.all {
+            let assetPath = Word.Constants.imageAssetPrefix + presetWord.imageAssetName
+            let match = allWords.filter {
+                $0.isCustom == false
+                    && ($0.reading == presetWord.reading || $0.imagePath == assetPath)
+            }.first
+            if let match = match {
+                if case .local(let fileName) = match.imageSource {
+                    fileNamesToDelete.append(fileName)
+                }
+                match.reading = presetWord.reading
+                match.imagePath = assetPath
+            } else {
+                let word = Word(
+                    reading: presetWord.reading,
+                    imagePath: assetPath,
+                    isCustom: false)
+                context.insert(word)
+            }
+        }
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
+        for fileName in fileNamesToDelete {
+            ImageStore.deleteImage(forFileName: fileName)
+        }
+    }
 }
