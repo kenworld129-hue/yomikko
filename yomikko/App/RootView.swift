@@ -21,7 +21,7 @@ struct RootView: View {
                 .transition(.opacity)
             case .game:
                 VStack {
-                    Text("game view")
+                    GameView()
                     Button("go to home") {
                         withAnimation {
                             router.currentScreen = .home
