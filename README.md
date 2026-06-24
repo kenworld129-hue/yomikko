@@ -53,7 +53,7 @@
 - ✅ **Phase 0：事前準備** — Apple Developer Program 登録、プライバシーポリシー公開、App Store Connect アプリ枠作成
 - ✅ **Phase 1：素材調達** — プリセット20語イラスト（Loose Drawing 一本化）、効果音（効果音ラボ）、アプリアイコン（Canva 内製）、ライセンス一覧（ASSET_LICENSES.md）整備
 - ✅ **Phase 2：開発環境・基盤** — Xcode プロジェクト作成、ビルド・SwiftData 動作検証、GitHub Public 公開、Word モデル実装、プリセット20語の初期投入処理
-- 🔶 **Phase 3：コア機能開発**（進行中）— 3-1〜3-7 完了（ホーム画面と画面切替メカニズム、起動時免責モーダル、単語登録画面、フォトライブラリ連携、写真なし単語のフォールバック表示・一覧サムネイル、単語削除と下限20語維持、プリセット復元、問題画面 UI）、3-8 以降は ゲームロジック / 音声読み上げ / 結果画面を順次実装
+- 🔶 **Phase 3：コア機能開発**（進行中）— 3-1〜3-8 完了（ホーム画面と画面切替メカニズム、起動時免責モーダル、単語登録画面、フォトライブラリ連携、写真なし単語のフォールバック表示・一覧サムネイル、単語削除と下限20語維持、プリセット復元、問題画面 UI、ゲームロジック〔出題生成・進行管理〕）、3-9 以降は 音声読み上げ / 正解・不正解演出 / 結果画面を順次実装
 - ⬜ Phase 4：UI 品質・3歳児向け細部調整
 - ⬜ Phase 5：TestFlight ベータテスト
 - ⬜ Phase 6：App Store 申請
@@ -113,14 +113,16 @@ yomikko/
 │   │   ├── RegisterView.swift   # 単語登録画面（一覧＋一覧/フォーム出し分け）
 │   │   ├── WordFormView.swift   # 単語フォーム（新規・編集兼用）
 │   │   ├── WordImageView.swift  # 画像表示の共通 View（ImageSource で出し分け・fallback 内蔵）
-│   │   ├── GameView.swift       # 問題画面（上部イラスト＋下部カード3枚・3-7）
+│   │   ├── GameView.swift       # 問題画面（出題の表示と進行・GameSession を @State 所有）
 │   │   └── WordCardView.swift   # 単語カード（問題画面の選択肢1枚）
 │   ├── Models/                 # データモデル
 │   │   ├── Word.swift          # SwiftData モデル（単語データ）
 │   │   └── Question.swift      # 出題1問の表示データ（値型・非永続）
 │   ├── Services/               # ビジネスロジック・データ投入
-│   │   ├── PresetSeeder.swift  # プリセット20語の初期投入・復元処理
-│   │   └── ImageStore.swift    # 画像ファイルの URL 解決・読み込み・削除（Documents I/O 集約）
+│   │   ├── PresetSeeder.swift       # プリセット20語の初期投入・復元処理
+│   │   ├── ImageStore.swift         # 画像ファイルの URL 解決・読み込み・削除（Documents I/O 集約）
+│   │   ├── QuestionGenerator.swift  # 出題生成（[Word]→[Question]、10問抽出・不正解選択肢・シャッフル）
+│   │   └── GameSession.swift        # ゲーム1回分の進行状態（@Observable、出題列と現在位置）
 │   └── Assets.xcassets/        # 画像リソース（アプリアイコン枠・プリセットイラスト20点・フォールバック1点）
 ├── yomikkoTests/               # 単体テスト（Swift Testing）
 ├── yomikkoUITests/             # UI テスト
