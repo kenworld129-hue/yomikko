@@ -22,6 +22,7 @@ struct RootView: View {
             case .game:
                 VStack {
                     GameView()
+                        .id(router.gameSessionID)
                     Button("go to home") {
                         withAnimation {
                             router.currentScreen = .home

@@ -14,7 +14,7 @@ struct HomeView: View {
         VStack {
             Button("はじめる") {
                 withAnimation {
-                    router.currentScreen = .game
+                    router.startGame()
                 }
             }
             Button("登録") {
