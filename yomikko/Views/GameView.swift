@@ -10,6 +10,7 @@ import SwiftUI
 struct GameView: View {
     @Query private var words: [Word]
     @State private var session = GameSession()
+    @State private var speaker = SpeechReader()
 
     var body: some View {
         VStack {
@@ -33,6 +34,15 @@ struct GameView: View {
         }
         .onAppear {
             session.start(words: words)
+            speakCurrent()
         }
+        .onChange(of: session.currentIndex) { _, _ in
+            speakCurrent()
+        }
+    }
+
+    private func speakCurrent() {
+        guard let question = session.currentQuestion else { return }
+        speaker.speak("\(question.options[question.correctIndex])、どれかな？")
     }
 }
