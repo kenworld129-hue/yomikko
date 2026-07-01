@@ -4,7 +4,7 @@
 
 ![Status](https://img.shields.io/badge/status-WIP_Phase_3-yellow)
 ![Platform](https://img.shields.io/badge/iOS-17%2B-blue)
-![Xcode](https://img.shields.io/badge/Xcode-26.3-blue)
+![Xcode](https://img.shields.io/badge/Xcode-26.6-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## 概要
@@ -21,7 +21,7 @@
 ## 主な機能 (v1)
 
 - プリセット20語 + 親登録のカスタム単語による読み練習
-- 自動音声モード（「くるまはどれ？」と読み上げ、`AVSpeechSynthesizer` 速度0.4固定）
+- 自動音声モード（出題ごとに「くるま、どれかな？」と自動読み上げ、`AVSpeechSynthesizer` 速度0.4固定）
 - 写真アップロード（フォトライブラリから選択）
 - 10問1セッション、結果画面で正解数表示
 - 写真未設定の単語には汎用イラストを自動割り当て
@@ -37,7 +37,7 @@
 | 写真連携 | PhotosUI |
 | テスト | Swift Testing |
 | ターゲット OS | iOS 17+ |
-| 開発環境 | Xcode 26.3 |
+| 開発環境 | Xcode 26.6 |
 
 ### 設計判断の根拠
 
@@ -46,6 +46,7 @@
 - **写真はローカル保存のみ**：プライバシー配慮とサーバー実装コスト回避を兼ねる。これにより GDPR 等のデータ越境問題からも切り離せる。
 - **カメラ撮影は非対応**（フォトライブラリ選択のみ）：「いまの瞬間を撮る」のはカメラアプリの役割であり、本アプリの責務（ひらがな読み練習）の外と整理した。`PhotosPicker` 一択にすることで、権限ダイアログや `UIImagePickerController` のラップも不要になり実装がシンプルになる。
 - **`@Observable` を採用**（`ObservableObject` ではなく）：iOS 17 のマクロベースの新方式。再描画粒度が細かくパフォーマンス的にも有利。
+- **読み上げ音声はフォールバック付きの優先選択**：既定音声は機械的な compact 品質になりがちなため、端末内蔵のより自然な日本語音声を優先順（O-ren → Grandma → 既定）で選び、未搭載の端末では既定へ安全に落とす。アプリからシステム音声はダウンロードできない制約下で「その端末にある中での最良」を使う設計。
 - **画面遷移は自前ルーティングで実装**（`NavigationStack` / `fullScreenCover` ではなく）：`@Observable` な `AppRouter` をアプリ全体で1つ Environment 注入し、ルート View が `switch` で表示画面を選択する方式。3歳児向け＋有料アプリとして UI を独自に作り込む方針上、画面切替トランジション演出まで自前で設計できる余地を確保する必要があったため、標準ナビゲーション API を意図的に外した。起動時免責モーダルのような「装飾不要・機械的トーンが意図と合致する」表示には標準 `.fullScreenCover` を併用し、責務に応じて標準 / 自前を使い分けている。
 
 ## 開発フェーズ進捗
@@ -53,7 +54,7 @@
 - ✅ **Phase 0：事前準備** — Apple Developer Program 登録、プライバシーポリシー公開、App Store Connect アプリ枠作成
 - ✅ **Phase 1：素材調達** — プリセット20語イラスト（Loose Drawing 一本化）、効果音（効果音ラボ）、アプリアイコン（Canva 内製）、ライセンス一覧（ASSET_LICENSES.md）整備
 - ✅ **Phase 2：開発環境・基盤** — Xcode プロジェクト作成、ビルド・SwiftData 動作検証、GitHub Public 公開、Word モデル実装、プリセット20語の初期投入処理
-- 🔶 **Phase 3：コア機能開発**（進行中）— 3-1〜3-8 完了（ホーム画面と画面切替メカニズム、起動時免責モーダル、単語登録画面、フォトライブラリ連携、写真なし単語のフォールバック表示・一覧サムネイル、単語削除と下限20語維持、プリセット復元、問題画面 UI、ゲームロジック〔出題生成・進行管理〕）、3-9 以降は 音声読み上げ / 正解・不正解演出 / 結果画面を順次実装
+- 🔶 **Phase 3：コア機能開発**（進行中）— 3-1〜3-9 完了（ホーム画面と画面切替メカニズム、起動時免責モーダル、単語登録画面、フォトライブラリ連携、写真なし単語のフォールバック表示・一覧サムネイル、単語削除と下限20語維持、プリセット復元、問題画面 UI、ゲームロジック〔出題生成・進行管理〕、音声読み上げ〔出題プロンプトの自動再生〕）、以降は 読み上げキャラクター / 正解・不正解演出 / 結果画面を順次実装
 - ⬜ Phase 4：UI 品質・3歳児向け細部調整
 - ⬜ Phase 5：TestFlight ベータテスト
 - ⬜ Phase 6：App Store 申請
@@ -84,7 +85,7 @@
 ### 必要環境
 
 - macOS（Apple Silicon 推奨）
-- Xcode 26.3 以降
+- Xcode 26.6 以降
 - iOS 17+ シミュレータまたは実機
 
 ### ビルド方法
@@ -122,7 +123,8 @@ yomikko/
 │   │   ├── PresetSeeder.swift       # プリセット20語の初期投入・復元処理
 │   │   ├── ImageStore.swift         # 画像ファイルの URL 解決・読み込み・削除（Documents I/O 集約）
 │   │   ├── QuestionGenerator.swift  # 出題生成（[Word]→[Question]、10問抽出・不正解選択肢・シャッフル）
-│   │   └── GameSession.swift        # ゲーム1回分の進行状態（@Observable、出題列と現在位置）
+│   │   ├── GameSession.swift        # ゲーム1回分の進行状態（@Observable、出題列と現在位置）
+│   │   └── SpeechReader.swift       # 読み上げ（AVSpeechSynthesizer を保持し声を選択、speak/stop を提供）
 │   └── Assets.xcassets/        # 画像リソース（アプリアイコン枠・プリセットイラスト20点・フォールバック1点）
 ├── yomikkoTests/               # 単体テスト（Swift Testing）
 ├── yomikkoUITests/             # UI テスト
