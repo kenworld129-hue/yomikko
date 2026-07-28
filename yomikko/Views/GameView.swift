@@ -32,6 +32,12 @@ struct GameView: View {
                 EmptyView()
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .topTrailing) {
+            CharacterView(isSpeaking: speaker.isSpeaking)
+                .frame(width: 100, height: 100)
+                .padding()
+        }
         .onAppear {
             session.start(words: words)
             speakCurrent()
