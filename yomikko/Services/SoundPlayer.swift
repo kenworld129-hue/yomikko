@@ -8,9 +8,16 @@ import AVFoundation
 
 final class SoundPlayer {
     private let correctPlayer: AVAudioPlayer? = SoundPlayer.makePlayer(forResource: "correct")
+    private let incorrectPlayer: AVAudioPlayer? = SoundPlayer.makePlayer(forResource: "incorrect")
 
     func playCorrect() {
         guard let player = correctPlayer else { return }
+        player.currentTime = 0
+        player.play()
+    }
+
+    func playIncorrect() {
+        guard let player = incorrectPlayer else { return }
         player.currentTime = 0
         player.play()
     }

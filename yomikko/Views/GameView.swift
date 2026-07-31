@@ -8,16 +8,25 @@ import SwiftData
 import SwiftUI
 
 struct GameView: View {
+    private enum FeedbackPhase: Equatable {
+        case idle
+        case celebrating
+        case wrong(tappedIndex: Int)
+    }
+
     @Query private var words: [Word]
     @State private var session = GameSession()
     @State private var speaker = SpeechReader()
     @State private var soundPlayer = SoundPlayer()
-    @State private var isCelebrating = false
+    @State private var feedback: FeedbackPhase = .idle
 
     private let celebrationDuration = 2.0
+    private let wrongDuration = 2.0
     private let correctCardScale = 1.3
     private let dimmedOpacity = 0.3
     private let markLineWidth: CGFloat = 12
+    private let wrongMarkSize: CGFloat = 60
+    private let revealLineWidth: CGFloat = 4
 
     var body: some View {
         VStack {
@@ -26,7 +35,7 @@ struct GameView: View {
                     .frame(width: 240, height: 240)
                     .clipped()
                     .overlay {
-                        if isCelebrating {
+                        if feedback == .celebrating {
                             Circle()
                                 .stroke(Color.red, lineWidth: markLineWidth)
                                 .transition(.scale.combined(with: .opacity))
@@ -38,10 +47,20 @@ struct GameView: View {
                             handleTap(index)
                         }
                         .scaleEffect(
-                            isCelebrating && index == question.correctIndex ? correctCardScale : 1
+                            feedback == .celebrating && index == question.correctIndex ? correctCardScale : 1
                         )
                         .opacity(
-                            isCelebrating && index != question.correctIndex ? dimmedOpacity : 1)
+                            feedback == .celebrating && index != question.correctIndex ? dimmedOpacity : 1)
+                        .overlay {
+                            if feedback == .wrong(tappedIndex: index) {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: wrongMarkSize, weight: .bold))
+                                    .foregroundStyle(Color.gray)
+                            } else if case .wrong = feedback, index == question.correctIndex {
+                                Rectangle()
+                                    .strokeBorder(Color.green, lineWidth: revealLineWidth)
+                            }
+                        }
                     }
                 }
             } else if session.isFinished {
@@ -71,17 +90,23 @@ struct GameView: View {
     }
 
     private func handleTap(_ index: Int) {
-        guard !isCelebrating else { return }
-        guard session.submitAnswer(at: index) else { return }
+        guard feedback == .idle else { return }
+        let isCorrect = session.submitAnswer(at: index)
         speaker.stop()
-        soundPlayer.playCorrect()
-        withAnimation(.spring) {
-            isCelebrating = true
+        if isCorrect {
+            soundPlayer.playCorrect()
+            withAnimation(.spring) {
+                feedback = .celebrating
+            }
+        } else {
+            soundPlayer.playIncorrect()
+            feedback = .wrong(tappedIndex: index)
         }
+        let duration = isCorrect ? celebrationDuration : wrongDuration
         Task {
-            try? await Task.sleep(for: .seconds(celebrationDuration))
+            try? await Task.sleep(for: .seconds(duration))
             session.advance()
-            isCelebrating = false
+            feedback = .idle
         }
     }
 }
