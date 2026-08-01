@@ -23,11 +23,6 @@ struct RootView: View {
                 VStack {
                     GameView()
                         .id(router.gameSessionID)
-                    Button("go to home") {
-                        withAnimation {
-                            router.currentScreen = .home
-                        }
-                    }
                 }
                 .transition(.opacity)
             case .register:

@@ -14,11 +14,14 @@ struct GameView: View {
         case wrong(tappedIndex: Int)
     }
 
+    @Environment(AppRouter.self) private var router
     @Query private var words: [Word]
     @State private var session = GameSession()
     @State private var speaker = SpeechReader()
     @State private var soundPlayer = SoundPlayer()
     @State private var feedback: FeedbackPhase = .idle
+    @State private var advanceTask: Task<Void, Never>?
+    @State private var isQuitConfirmPresented = false
 
     private let celebrationDuration = 2.0
     private let wrongDuration = 2.0
@@ -75,6 +78,21 @@ struct GameView: View {
                 .frame(width: 100, height: 100)
                 .padding()
         }
+        .overlay(alignment: .topLeading) {
+            Button("やめる") {
+                isQuitConfirmPresented = true
+            }
+            .padding()
+            .confirmationDialog(
+                "ゲームをやめてホームにもどりますか？",
+                isPresented: $isQuitConfirmPresented,
+                titleVisibility: .visible
+            ) {
+                Button("やめる", role: .destructive) {
+                    quitGame()
+                }
+            }
+        }
         .onAppear {
             session.start(words: words)
             speakCurrent()
@@ -103,10 +121,19 @@ struct GameView: View {
             feedback = .wrong(tappedIndex: index)
         }
         let duration = isCorrect ? celebrationDuration : wrongDuration
-        Task {
+        advanceTask = Task {
             try? await Task.sleep(for: .seconds(duration))
+            guard !Task.isCancelled else { return }
             session.advance()
             feedback = .idle
+        }
+    }
+
+    private func quitGame() {
+        advanceTask?.cancel()
+        speaker.stop()
+        withAnimation {
+            router.currentScreen = .home
         }
     }
 }
