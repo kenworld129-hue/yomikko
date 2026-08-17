@@ -20,7 +20,7 @@ struct GameView: View {
     @State private var speaker = SpeechReader()
     @State private var soundPlayer = SoundPlayer()
     @State private var feedback: FeedbackPhase = .idle
-    @State private var advanceTask: Task<Void, Never>?
+    @State private var pendingTask: Task<Void, Never>?
     @State private var isQuitConfirmPresented = false
 
     private let celebrationDuration = 2.0
@@ -30,6 +30,23 @@ struct GameView: View {
     private let markLineWidth: CGFloat = 12
     private let wrongMarkSize: CGFloat = 60
     private let revealLineWidth: CGFloat = 4
+    private let bounceOffsetGentle: CGFloat = 8
+    private let bounceOffsetExcited: CGFloat = 14
+    private let bounceDuration = 0.35
+
+    private var resultTier: ResultTier? {
+        session.isFinished
+            ? ResultTier(score: session.score, total: session.questions.count)
+            : nil
+    }
+
+    private var characterBounceOffset: CGFloat {
+        switch resultTier?.bounce {
+        case .excited: return bounceOffsetExcited
+        case .gentle: return bounceOffsetGentle
+        case .still, nil: return 0
+        }
+    }
 
     var body: some View {
         VStack {
@@ -50,10 +67,13 @@ struct GameView: View {
                             handleTap(index)
                         }
                         .scaleEffect(
-                            feedback == .celebrating && index == question.correctIndex ? correctCardScale : 1
+                            feedback == .celebrating && index == question.correctIndex
+                                ? correctCardScale : 1
                         )
                         .opacity(
-                            feedback == .celebrating && index != question.correctIndex ? dimmedOpacity : 1)
+                            feedback == .celebrating && index != question.correctIndex
+                                ? dimmedOpacity : 1
+                        )
                         .overlay {
                             if feedback == .wrong(tappedIndex: index) {
                                 Image(systemName: "xmark")
@@ -67,7 +87,9 @@ struct GameView: View {
                     }
                 }
             } else if session.isFinished {
-                Text("ぜんぶおわったよ")
+                ResultView(score: session.score, total: session.questions.count) {
+                    leaveGame()
+                }
             } else {
                 EmptyView()
             }
@@ -77,19 +99,26 @@ struct GameView: View {
             CharacterView(isSpeaking: speaker.isSpeaking)
                 .frame(width: 100, height: 100)
                 .padding()
+                .offset(y: session.isFinished ? -characterBounceOffset : 0)
+                .animation(
+                    .easeInOut(duration: bounceDuration).repeatForever(autoreverses: true),
+                    value: session.isFinished
+                )
         }
         .overlay(alignment: .topLeading) {
-            Button("やめる") {
-                isQuitConfirmPresented = true
-            }
-            .padding()
-            .confirmationDialog(
-                "ゲームをやめてホームにもどりますか？",
-                isPresented: $isQuitConfirmPresented,
-                titleVisibility: .visible
-            ) {
-                Button("やめる", role: .destructive) {
-                    quitGame()
+            if session.currentQuestion != nil {
+                Button("やめる") {
+                    isQuitConfirmPresented = true
+                }
+                .padding()
+                .confirmationDialog(
+                    "ゲームをやめてホームにもどりますか？",
+                    isPresented: $isQuitConfirmPresented,
+                    titleVisibility: .visible
+                ) {
+                    Button("やめる", role: .destructive) {
+                        leaveGame()
+                    }
                 }
             }
         }
@@ -99,6 +128,18 @@ struct GameView: View {
         }
         .onChange(of: session.currentIndex) { _, _ in
             speakCurrent()
+        }
+        .onChange(of: session.isFinished) { _, _ in
+            guard let tier = resultTier else { return }
+            if tier.playsSound {
+                soundPlayer.playCorrect()
+            }
+            let text = tier.speechText(score: session.score, total: session.questions.count)
+            pendingTask = Task {
+                try? await Task.sleep(for: .seconds(tier.speechDelay))
+                guard !Task.isCancelled else { return }
+                speaker.speak(text)
+            }
         }
     }
 
@@ -121,7 +162,7 @@ struct GameView: View {
             feedback = .wrong(tappedIndex: index)
         }
         let duration = isCorrect ? celebrationDuration : wrongDuration
-        advanceTask = Task {
+        pendingTask = Task {
             try? await Task.sleep(for: .seconds(duration))
             guard !Task.isCancelled else { return }
             session.advance()
@@ -129,8 +170,8 @@ struct GameView: View {
         }
     }
 
-    private func quitGame() {
-        advanceTask?.cancel()
+    private func leaveGame() {
+        pendingTask?.cancel()
         speaker.stop()
         withAnimation {
             router.currentScreen = .home
