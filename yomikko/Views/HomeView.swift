@@ -17,11 +17,13 @@ struct HomeView: View {
                     router.startGame()
                 }
             }
+            .font(.app(.primaryButton))
             Button("登録") {
                 withAnimation {
                     router.currentScreen = .register
                 }
             }
+            .font(.app(.primaryButton))
         }
         .transition(.opacity)
     }
