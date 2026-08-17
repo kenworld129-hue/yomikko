@@ -15,21 +15,21 @@ struct WordImageView: View {
         case .asset(let name):
             Image(name)
                 .resizable()
-                .scaledToFill()
+                .scaledToFit()
         case .local(let filename):
             if let ui = ImageStore.loadImage(forFileName: filename) {
                 Image(uiImage: ui)
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit()
             } else {
                 Image("fallback")
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit()
             }
         case .none:
             Image("fallback")
                 .resizable()
-                .scaledToFill()
+                .scaledToFit()
         }
 
     }

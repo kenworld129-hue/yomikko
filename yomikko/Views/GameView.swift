@@ -53,7 +53,6 @@ struct GameView: View {
             if let question = session.currentQuestion {
                 WordImageView(source: question.imageSource)
                     .frame(width: 240, height: 240)
-                    .clipped()
                     .overlay {
                         if feedback == .celebrating {
                             Circle()
