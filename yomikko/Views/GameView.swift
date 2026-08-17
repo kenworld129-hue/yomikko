@@ -33,6 +33,9 @@ struct GameView: View {
     private let bounceOffsetGentle: CGFloat = 8
     private let bounceOffsetExcited: CGFloat = 14
     private let bounceDuration = 0.35
+    private let cardSpacing: CGFloat = 12
+    private let cardAreaHorizontalPadding: CGFloat = 24
+    private let mascotSize: CGFloat = 130
 
     private var resultTier: ResultTier? {
         session.isFinished
@@ -60,7 +63,7 @@ struct GameView: View {
                                 .transition(.scale.combined(with: .opacity))
                         }
                     }
-                HStack {
+                VStack(spacing: cardSpacing) {
                     ForEach(question.options.indices, id: \.self) { index in
                         WordCardView(reading: question.options[index]) {
                             handleTap(index)
@@ -79,12 +82,13 @@ struct GameView: View {
                                     .font(.system(size: wrongMarkSize, weight: .bold))
                                     .foregroundStyle(Color.gray)
                             } else if case .wrong = feedback, index == question.correctIndex {
-                                Rectangle()
+                                RoundedRectangle(cornerRadius: AppTheme.cornerRadius)
                                     .strokeBorder(Color.green, lineWidth: revealLineWidth)
                             }
                         }
                     }
                 }
+                .padding(.horizontal, cardAreaHorizontalPadding)
             } else if session.isFinished {
                 ResultView(score: session.score, total: session.questions.count) {
                     leaveGame()
@@ -96,7 +100,7 @@ struct GameView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .topTrailing) {
             CharacterView(isSpeaking: speaker.isSpeaking)
-                .frame(width: 100, height: 100)
+                .frame(width: mascotSize, height: mascotSize)
                 .padding()
                 .offset(y: session.isFinished ? -characterBounceOffset : 0)
                 .animation(
@@ -106,10 +110,15 @@ struct GameView: View {
         }
         .overlay(alignment: .topLeading) {
             if session.currentQuestion != nil {
-                Button("やめる") {
+                Button {
                     isQuitConfirmPresented = true
+                } label: {
+                    Text("やめる")
+                        .font(.app(.gameCaption))
+                        .foregroundStyle(.secondary)
+                        .padding(14)
+                        .contentShape(Rectangle())
                 }
-                .padding()
                 .confirmationDialog(
                     "ゲームをやめてホームにもどりますか？",
                     isPresented: $isQuitConfirmPresented,
@@ -119,6 +128,14 @@ struct GameView: View {
                         leaveGame()
                     }
                 }
+            }
+        }
+        .overlay(alignment: .top) {
+            if session.currentQuestion != nil {
+                Text("\(session.currentIndex + 1)/\(session.questions.count)")
+                    .font(.app(.gameCaption))
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 8)
             }
         }
         .onAppear {

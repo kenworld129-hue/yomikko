@@ -26,7 +26,7 @@ extension Font {
     static func app(_ role: AppRole) -> Font {
         switch role {
             case .card:
-            return .custom(zenMaruBold, fixedSize: 48)
+            return .custom(zenMaruBold, fixedSize: 30)
             case .display:
             return .custom(zenMaruBold, fixedSize: 32)
             case .primaryButton:
