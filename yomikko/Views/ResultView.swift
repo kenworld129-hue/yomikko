@@ -72,7 +72,7 @@ enum ResultTier {
     }
 
     func scoreLine(score: Int, total: Int) -> String {
-        let base = "\(total)もんちゅう\(score)もんせいかい"
+        let base = "\(total)もんちゅう\n\(score)もんせいかい"
         return self == .low ? base : base + "！"
     }
 
@@ -88,8 +88,8 @@ struct ResultView: View {
 
     @State private var appeared = false
 
-    private let stampSize: CGFloat = 24
-    private let stampLineWidth: CGFloat = 4
+    private let stampSize: CGFloat = 28
+    private let stampLineWidth: CGFloat = 5
     private let stampSpacing: CGFloat = 6
     private let stampInterval = 0.15
     private let quietFadeDuration = 0.6
@@ -116,9 +116,10 @@ struct ResultView: View {
             }
             VStack(spacing: 8) {
                 Text(tier.scoreLine(score: score, total: total))
-                    .font(.title)
+                    .font(.app(.display))
+                    .multilineTextAlignment(.center)
                 Text(tier.subMessage)
-                    .font(.title3)
+                    .font(.app(.displaySub))
             }
             .scaleEffect((appeared || tier == .low) ? 1 : 0)
             .opacity(appeared ? 1 : 0)
@@ -129,6 +130,7 @@ struct ResultView: View {
             Button("おわる") {
                 onFinish()
             }
+            .buttonStyle(PrimaryButtonStyle())
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay {
