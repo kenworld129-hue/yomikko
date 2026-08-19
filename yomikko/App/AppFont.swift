@@ -15,7 +15,8 @@ extension Font {
         case card // 単語カード（ゲーム・特大）
         case display // 結果のスコア行（ゲーム・大）
         case displaySub // 結果のお祝い文言（displayの従属行・ゲーム・中）
-        case primaryButton // 主ボタン：ホーム２つ・結果「おわる」（ゲーム動線・中大）
+        case primaryButton // 主ボタン：ホーム「はじめる」・結果「終わる」（ゲーム同線・中大）
+        case appTitle // ホームのアプリ名タイトル（ゲーム動線・特大）
         case body // 登録系の本文・フォーム（親向け・端末設定に追従）
         case caption // 登録系の注記・キャプション（親向け・端末設定に追従）
         case gameCaption // ゲーム内の小さな注記（現在地表示など・固定）
@@ -34,6 +35,8 @@ extension Font {
             return .custom(zenMaruBold, fixedSize: 22)
             case .primaryButton:
             return .custom(zenMaruBold, fixedSize: 26)
+            case .appTitle:
+            return .custom(zenMaruBold, fixedSize: 48)
             case .body:
             return .custom(zenMaruRegular, size: 17, relativeTo: .body)
             case .caption:
