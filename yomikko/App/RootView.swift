@@ -11,29 +11,31 @@ struct RootView: View {
     @Environment(AppRouter.self) var router
 
     var body: some View {
-        @Bindable var router = router
         Group {
-            switch router.currentScreen {
-            case .home:
-                VStack {
-                    HomeView()
+            if router.isDisclaimerPresented {
+                DisclaimerView()
+                    .transition(.opacity)
+            } else {
+                switch router.currentScreen {
+                case .home:
+                    VStack {
+                        HomeView()
+                    }
+                    .transition(.opacity)
+                case .game:
+                    VStack {
+                        GameView()
+                            .id(router.gameSessionID)
+                    }
+                    .transition(.opacity)
+                case .register:
+                    VStack {
+                        RegisterView()
+                    }
+                    .transition(.opacity)
                 }
-                .transition(.opacity)
-            case .game:
-                VStack {
-                    GameView()
-                        .id(router.gameSessionID)
-                }
-                .transition(.opacity)
-            case .register:
-                VStack {
-                    RegisterView()
-                }
-                .transition(.opacity)
+
             }
-        }
-        .fullScreenCover(isPresented: $router.isDisclaimerPresented) {
-            DisclaimerView()
         }
     }
 }

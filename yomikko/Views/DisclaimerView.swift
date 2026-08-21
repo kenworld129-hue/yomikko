@@ -13,7 +13,8 @@ struct DisclaimerView: View {
     var body: some View {
         VStack(spacing: 64) {
             Text("保護者の方へ")
-                .font(.headline)
+                .font(.title2)
+                .bold()
             ScrollView {
                 Text(
                     """
@@ -24,14 +25,21 @@ struct DisclaimerView: View {
                     絵本の読み聞かせや日々の語りかけなど、ふだんの関わりとあわせて、学びのきっかけのひとつとしてご活用ください。
                     """
                 )
-                .multilineTextAlignment(.center)
+                .multilineTextAlignment(.leading)
                 .lineSpacing(8)
-                .padding()
+                .padding(.horizontal, 32)
 
             }
-            Button("OK") {
-                router.isDisclaimerPresented = false
+            Button {
+                withAnimation {
+                    router.isDisclaimerPresented = false
+                }
+            } label: {
+                Text("OK")
+                    .frame(minWidth: 60)
             }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
         }
         .padding()
     }
